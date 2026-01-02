@@ -3,7 +3,7 @@
 import { getPageHistory } from '../lib/storage.js';
 import { searchPages } from '../lib/search.js';
 import { formatRelativeTime } from '../lib/utils.js';
-import { syncToCloud, isSupabaseConfigured } from '../lib/supabase-client.js';
+import { syncToGoogleSheets, getCurrentUser, signOut, isGoogleSheetsAvailable } from '../lib/google-sheets-client.js';
 
 // DOM elements
 const searchInput = document.getElementById('searchInput');
@@ -12,6 +12,7 @@ const emptyState = document.getElementById('emptyState');
 const loadingState = document.getElementById('loadingState');
 const resultCount = document.getElementById('resultCount');
 const syncButton = document.getElementById('syncButton');
+const authButton = document.getElementById('authButton');
 
 // Store full history in memory for fast searching
 let pageHistory = {};
@@ -49,17 +50,74 @@ async function init() {
     // Initial render - show all recent pages
     handleSearch('');
 
-    // Set up sync button
-    if (isSupabaseConfigured()) {
+    // Set up Google Sheets auth and sync
+    if (isGoogleSheetsAvailable()) {
+      await setupAuth();
       syncButton.addEventListener('click', handleSync);
+      authButton.addEventListener('click', handleAuth);
     } else {
       syncButton.style.display = 'none';
+      authButton.style.display = 'none';
     }
   } catch (error) {
     console.error('Error initializing popup:', error);
     loadingState.classList.add('hidden');
     emptyState.textContent = 'Error loading history. Please try again.';
     emptyState.classList.remove('hidden');
+  }
+}
+
+/**
+ * Set up authentication state
+ */
+async function setupAuth() {
+  const user = await getCurrentUser();
+  if (user) {
+    authButton.textContent = '✓ Signed In';
+    authButton.classList.add('signed-in');
+    authButton.title = `Signed in as ${user.email}`;
+    syncButton.style.display = 'block';
+  } else {
+    authButton.textContent = '🔐 Sign In';
+    authButton.classList.remove('signed-in');
+    syncButton.style.display = 'none';
+  }
+}
+
+/**
+ * Handle authentication (sign in/out)
+ */
+async function handleAuth() {
+  try {
+    const user = await getCurrentUser();
+
+    if (user) {
+      // Sign out
+      const confirmed = confirm('Sign out from Google?');
+      if (confirmed) {
+        await signOut();
+        await setupAuth();
+      }
+    } else {
+      // Sign in - just check auth, token will be requested on sync
+      authButton.disabled = true;
+      authButton.textContent = 'Signing in...';
+
+      const checkUser = await getCurrentUser();
+
+      if (checkUser) {
+        await setupAuth();
+      } else {
+        alert('Sign in failed. Please allow Google account access.');
+        authButton.textContent = '🔐 Sign In';
+        authButton.disabled = false;
+      }
+    }
+  } catch (error) {
+    console.error('Auth error:', error);
+    alert('Authentication error. Check console for details.');
+    authButton.textContent = '🔐 Sign In';
+    authButton.disabled = false;
   }
 }
 
@@ -72,22 +130,33 @@ async function handleSync() {
     syncButton.classList.add('syncing');
     syncButton.textContent = '🔄 Syncing...';
 
-    const result = await syncToCloud();
+    const result = await syncToGoogleSheets();
 
     if (result.success) {
-      syncButton.textContent = '✓ Synced!';
+      syncButton.textContent = `✓ ${result.synced} pages synced!`;
+
+      // Show link to sheet
+      if (result.sheetUrl) {
+        setTimeout(() => {
+          if (confirm(`Synced ${result.synced} pages!\n\nOpen Google Sheet?`)) {
+            chrome.tabs.create({ url: result.sheetUrl });
+          }
+        }, 500);
+      }
+
       setTimeout(() => {
         syncButton.textContent = '🔄 Sync';
         syncButton.classList.remove('syncing');
         syncButton.disabled = false;
-      }, 2000);
+      }, 3000);
     } else {
-      syncButton.textContent = '✗ Failed';
+      syncButton.textContent = '✗ ' + result.message;
+      console.error('Sync failed:', result);
       setTimeout(() => {
         syncButton.textContent = '🔄 Sync';
         syncButton.classList.remove('syncing');
         syncButton.disabled = false;
-      }, 2000);
+      }, 3000);
     }
   } catch (error) {
     console.error('Sync error:', error);

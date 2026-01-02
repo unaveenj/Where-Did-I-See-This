@@ -37,6 +37,12 @@ header {
   font-weight: 600;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-button,
 .sync-button {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -48,10 +54,12 @@ header {
   transition: all 0.2s;
 }
 
+.auth-button:hover,
 .sync-button:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
+.auth-button:disabled,
 .sync-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -59,6 +67,10 @@ header {
 
 .sync-button.syncing {
   animation: spin 1s linear infinite;
+}
+
+.auth-button.signed-in {
+  background: rgba(92, 184, 92, 0.3);
 }
 
 @keyframes spin {
