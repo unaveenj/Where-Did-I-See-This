@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto Icon Generator</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .container {
+      background: white;
+      padding: 60px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      text-align: center;
+      max-width: 500px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+
+    .status {
+      font-size: 18px;
+      color: #666;
+      margin: 30px 0;
+      line-height: 1.6;
+    }
+
+    .status.success {
+      color: #5cb85c;
+      font-weight: 600;
+    }
+
+    .icon-preview {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 30px 0;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 12px;
+    }
+
+    canvas {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+    }
+
+    button {
+      padding: 15px 40px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background: #357abd;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .instructions {
+      margin-top: 30px;
+      padding: 20px;
+      background: #e7f3ff;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #555;
+    }
+
+    .instructions strong {
+      color: #333;
+    }
+
+    .checkmark {
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #5cb85c;
+      color: white;
+      font-size: 36px;
+      line-height: 60px;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Icon Generator</h1>
+    <div class="status" id="status">Click the button below to generate icons</div>
+
+    <div class="icon-preview" style="display: none;" id="preview">
+      <canvas id="icon128" width="128" height="128"></canvas>
+      <canvas id="icon48" width="48" height="48"></canvas>
+      <canvas id="icon16" width="16" height="16"></canvas>
+    </div>
+
+    <button id="generateBtn" onclick="generateAndDownload()">
+      Generate & Download Icons
+    </button>
+
+    <div class="instructions">
+      <strong>After downloading:</strong><br>
+      1. Check your Downloads folder for 3 PNG files<br>
+      2. Move them to <code>assets/icons/</code> folder<br>
+      3. Reload extension in chrome://extensions/<br>
+      4. Done! ✓
+    </div>
+  </div>
+
+  <script>
+    // Draw icon on canvas with professional design
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      const bgColor = '#4a90e2'; // Blue
+      const iconColor = '#ffffff'; // White
+
+      // Clear canvas
+      ctx.clearRect(0, 0, size, size);
+
+      // Draw background circle with gradient
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#4a90e2');
+      gradient.addColorStop(1, '#357abd');
+
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Configure icon color and line width
+      ctx.strokeStyle = iconColor;
+      ctx.fillStyle = iconColor;
+      ctx.lineWidth = Math.max(2, size / 20);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (size >= 32) {
+        // Draw magnifying glass
+        const centerX = size * 0.42;
+        const centerY = size * 0.42;
+        const radius = size * 0.18;
+
+        // Glass circle
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Handle
+        ctx.beginPath();
+        ctx.moveTo(centerX + radius * 0.65, centerY + radius * 0.65);
+        ctx.lineTo(centerX + radius * 1.6, centerY + radius * 1.6);
+        ctx.stroke();
+
+        // Clock/history indicator (small arc in top-left)
+        if (size >= 48) {
+          const clockX = size * 0.28;
+          const clockY = size * 0.28;
+          const clockRadius = size * 0.1;
+
+          ctx.lineWidth = Math.max(2, size / 35);
+          ctx.beginPath();
+          ctx.arc(clockX, clockY, clockRadius, -Math.PI / 2, Math.PI / 6, false);
+          ctx.stroke();
+
+          // Clock hands
+          ctx.beginPath();
+          ctx.moveTo(clockX, clockY);
+          ctx.lineTo(clockX, clockY - clockRadius * 0.6);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(clockX, clockY);
+          ctx.lineTo(clockX + clockRadius * 0.5, clockY);
+          ctx.stroke();
+        }
+      } else {
+        // For 16x16: Simple magnifying glass only
+        const centerX = size / 2;
+        const centerY = size / 2 - 1;
+        const radius = size * 0.25;
+
+        // Glass
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Handle
+        ctx.beginPath();
+        ctx.moveTo(centerX + radius * 0.6, centerY + radius * 0.6);
+        ctx.lineTo(centerX + radius * 1.3, centerY + radius * 1.3);
+        ctx.stroke();
+      }
+    }
+
+    // Download canvas as PNG
+    function downloadIcon(canvas, filename) {
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = filename;
+          link.href = url;
+          link.click();
+          URL.revokeObjectURL(url);
+          resolve();
+        }, 'image/png');
+      });
+    }
+
+    // Generate and download all icons
+    async function generateAndDownload() {
+      const btn = document.getElementById('generateBtn');
+      const status = document.getElementById('status');
+      const preview = document.getElementById('preview');
+
+      btn.disabled = true;
+      status.textContent = 'Generating icons...';
+
+      // Show preview
+      preview.style.display = 'flex';
+
+      // Draw all icons
+      const canvas128 = document.getElementById('icon128');
+      const canvas48 = document.getElementById('icon48');
+      const canvas16 = document.getElementById('icon16');
+
+      drawIcon(canvas128, 128);
+      drawIcon(canvas48, 48);
+      drawIcon(canvas16, 16);
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      status.textContent = 'Downloading icon128.png...';
+      await downloadIcon(canvas128, 'icon128.png');
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      status.textContent = 'Downloading icon48.png...';
+      await downloadIcon(canvas48, 'icon48.png');
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      status.textContent = 'Downloading icon16.png...';
+      await downloadIcon(canvas16, 'icon16.png');
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Success
+      status.innerHTML = '<div class="checkmark">✓</div>All icons downloaded successfully!';
+      status.className = 'status success';
+      btn.textContent = 'Download Again';
+      btn.disabled = false;
+    }
+
+    // Auto-generate on load (optional - commented out)
+    // window.addEventListener('load', () => {
+    //   setTimeout(generateAndDownload, 1000);
+    // });
+  </script>
+</body>
+</html>

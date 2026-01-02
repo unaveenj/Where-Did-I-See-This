@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Where Did I See This?</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1 class="title">Where Did I See This?</h1>
+      <button id="syncButton" class="sync-button" title="Sync to Supabase">🔄 Sync</button>
+    </header>
+
+    <!-- Search Input -->
+    <div class="search-wrapper">
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="Search pages by keyword..."
+        autofocus
+      />
+    </div>
+
+    <!-- Result Count -->
+    <div id="resultCount" class="result-count"></div>
+
+    <!-- Results Container -->
+    <div id="resultsContainer" class="results-container">
+      <!-- Results will be rendered here dynamically -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state hidden">
+      <p>No pages found matching your search.</p>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state">
+      <p>Loading...</p>
+    </div>
+  </div>
+
+  <!-- Supabase JavaScript Client Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

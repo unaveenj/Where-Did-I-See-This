@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#4a90e2"/>
+
+  <!-- Search magnifying glass -->
+  <circle cx="50" cy="50" r="20" fill="none" stroke="#ffffff" stroke-width="6"/>
+  <line x1="65" y1="65" x2="85" y2="85" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Clock/history indicator (small arc) -->
+  <path d="M 35 30 A 15 15 0 0 1 50 20" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="50" y1="20" x2="50" y2="15" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="50" y1="20" x2="55" y2="20" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+</svg>
