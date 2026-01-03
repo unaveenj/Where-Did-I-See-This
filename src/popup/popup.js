@@ -122,7 +122,7 @@ async function handleAuth() {
 }
 
 /**
- * Handle manual sync to Supabase
+ * Handle manual sync to Google Sheets
  */
 async function handleSync() {
   try {
@@ -322,6 +322,6 @@ init();
 // - Add "Open in background tab" option (Ctrl+Click)
 // - Implement fuzzy search for typo tolerance
 // - Add recent searches dropdown
-// - Show sync status indicator when Supabase is enabled
+// - Show sync status indicator when Google Sheets is enabled
 // - Add filter by domain or date range
 // - Implement result highlighting for matched keywords

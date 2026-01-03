@@ -3,8 +3,8 @@
 import { CONFIG } from '../config/config.js';
 import { savePageVisit } from '../lib/storage.js';
 import { extractDomain, isValidUrl, sanitizeTitle, isExcludedUrl } from '../lib/utils.js';
-// Note: Background sync disabled - use manual sync from popup for Supabase
-// import { triggerBackgroundSync } from '../lib/supabase-client.js';
+// Note: Background sync disabled - use manual sync from popup for Google Sheets
+// Sync is triggered manually from popup via google-sheets-client.js
 
 /**
  * Process and save page visit
@@ -49,7 +49,7 @@ async function processPageVisit(tabId, tab) {
     await savePageVisit(pageData);
 
     // Note: Automatic background sync disabled due to ES6 module limitations
-    // Use the "Sync" button in popup for manual Supabase sync
+    // Use the "Sync" button in popup for manual Google Sheets sync
   } catch (error) {
     // Graceful error handling - log but don't break extension
     console.error('Error processing page visit:', error);
